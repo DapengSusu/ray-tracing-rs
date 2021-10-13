@@ -3,8 +3,10 @@ use create_image::hittable_list::HittableList;
 use create_image::material::{Dielectric, Lambertian, Metal};
 use create_image::rtweekend;
 use create_image::sphere::Sphere;
+use create_image::vec3::Vec3;
 use create_image::{Color3, Point3};
 use create_image::{color, ray::Ray};
+// use std::f64::consts::FRAC_PI_4;
 
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color3 {
@@ -40,10 +42,8 @@ fn main() {
     let mut world = HittableList::new();
 
     let material_ground = Lambertian::new(Color3::new(0.8, 0.8, 0.0));
-    // let material_center = Dielectric::new(1.5);
     let material_center = Lambertian::new(Color3::new(0.1, 0.2, 0.5));
     let material_left = Dielectric::new(1.5);
-    // let material_left = Metal::new(Color3::new(0.8, 0.8, 0.8), 0.3);
     let material_right = Metal::new(Color3::new(0.8, 0.6, 0.2), 0.0);
 
     world.add(Box::new(Sphere::new(
@@ -66,7 +66,7 @@ fn main() {
 
     world.add(Box::new(Sphere::new(
         Point3::new(-1.0, 0.0, -1.0),
-        -0.4,
+        -0.45,
         Box::new(material_left)
     )));
 
@@ -77,7 +77,20 @@ fn main() {
     )));
 
     // Camera
-    let camera = Camera::new();
+    let lookfrom = Point3::new(3.0, 3.0, 2.0);
+    let lookat = Point3::new(0.0, 0.0, -1.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let dist_to_focus = (lookfrom - lookat).length();
+    let aperture = 2.0;
+
+    let camera = Camera::new(
+        lookfrom,
+        lookat,
+        vup, 20.0,
+        ASPECT_RATIO,
+        aperture,
+        dist_to_focus
+    );
 
     // Render
     let head = format!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);

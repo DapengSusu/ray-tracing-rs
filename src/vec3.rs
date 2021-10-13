@@ -48,7 +48,7 @@ impl Vec3 {
         u.x * v.x + u.y * v.y + u.z * v.z
     }
 
-    pub fn cross(u: &Vec3, v: Vec3) -> Self {
+    pub fn cross(u: &Vec3, v: &Vec3) -> Self {
         // x = y1*z2 - y2*z1
         // y = x2*z1 - x1*z2
         // z = x1*y2 - x2*y1
@@ -91,6 +91,20 @@ impl Vec3 {
 
     pub fn random_unit_vector() -> Self {
         Self::unit_vector(Self::random_in_unit_sphere())
+    }
+
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let p = Vec3::new(
+                rtweekend::random_in_range(-1.0, 1.0),
+                rtweekend::random_in_range(-1.0, 1.0),
+                0.0
+            );
+
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
     }
 
     pub fn near_zero(&self) -> bool {
