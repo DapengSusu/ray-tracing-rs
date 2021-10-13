@@ -1,6 +1,6 @@
 use create_image::camera::Camera;
 use create_image::hittable_list::HittableList;
-use create_image::material::{Lambertian, Metal};
+use create_image::material::{Dielectric, Lambertian, Metal};
 use create_image::rtweekend;
 use create_image::sphere::Sphere;
 use create_image::{Color3, Point3};
@@ -40,9 +40,11 @@ fn main() {
     let mut world = HittableList::new();
 
     let material_ground = Lambertian::new(Color3::new(0.8, 0.8, 0.0));
-    let material_center = Lambertian::new(Color3::new(0.7, 0.3, 0.3));
-    let material_left = Metal::new(Color3::new(0.8, 0.8, 0.8), 0.3);
-    let material_right = Metal::new(Color3::new(0.8, 0.6, 0.2), 1.0);
+    // let material_center = Dielectric::new(1.5);
+    let material_center = Lambertian::new(Color3::new(0.1, 0.2, 0.5));
+    let material_left = Dielectric::new(1.5);
+    // let material_left = Metal::new(Color3::new(0.8, 0.8, 0.8), 0.3);
+    let material_right = Metal::new(Color3::new(0.8, 0.6, 0.2), 0.0);
 
     world.add(Box::new(Sphere::new(
         Point3::new(0.0, -100.5, -1.0),
@@ -59,6 +61,12 @@ fn main() {
     world.add(Box::new(Sphere::new(
         Point3::new(-1.0, 0.0, -1.0),
         0.5,
+        Box::new(material_left.clone())
+    )));
+
+    world.add(Box::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        -0.4,
         Box::new(material_left)
     )));
 
