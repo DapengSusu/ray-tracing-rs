@@ -3,7 +3,7 @@
 #### 介绍
 Ray tracing in one weekend, implemennted in Rust.
 
-https://gitee.com/dapengsusu/ray-tracing-rs.git
+https://gitee.com/dapengsusu/ray-tracing-rs
 
 
 #### 使用说明
