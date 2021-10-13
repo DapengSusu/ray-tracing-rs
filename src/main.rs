@@ -1,12 +1,26 @@
+use create_image::camera::Camera;
 use create_image::hittable_list::HittableList;
+use create_image::rtweekend;
 use create_image::sphere::Sphere;
-use create_image::{Color3, Point3, vec3::Vec3};
+use create_image::vec3::Vec3;
+use create_image::{Color3, Point3};
 use create_image::{color, ray::Ray};
 
 
-fn ray_color(ray: &Ray, world: &HittableList) -> Color3 {
-    if let Some(hit_rec) = world.is_hit(ray, 0.0, f64::INFINITY) {
-        return (hit_rec.normal + Color3::new(1.0, 1.0, 1.0)).multiply_coef(0.5);
+fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color3 {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if depth <= 0 {
+        return Color3::new(0.0, 0.0, 0.0);
+    }
+
+    if let Some(hit_rec) = world.is_hit(ray, 0.001, f64::INFINITY) {
+        let target = hit_rec.p + hit_rec.normal + Vec3::random_unit_vector();
+
+        return ray_color(
+            &Ray::new(hit_rec.p, target - hit_rec.p),
+            world,
+            depth - 1
+        ).multiply_coef(0.5);
     }
 
     let unit_direction = Color3::unit_vector(*ray.direction());
@@ -21,6 +35,8 @@ fn main() {
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_WIDTH: u32 = 400;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
+    const SAMPLES_PER_PIXEL: u32 = 100;
+    const MAX_DEPTH: i32 = 50;
 
     // World
     let mut world = HittableList::new();
@@ -29,15 +45,7 @@ fn main() {
     world.add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     // Camera
-    let viewport_height = 2.0;
-    let viewport_width = ASPECT_RATIO * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Point3::new(0.0, 0.0, 0.0);
-    let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
-    let vertical = Vec3::new(0.0, viewport_height, 0.0);
-    let lower_left_corner = origin - horizontal.multiply_coef(1.0/2.0)
-        - vertical.multiply_coef(1.0/2.0) - Vec3::new(0.0, 0.0, focal_length);
+    let camera = Camera::new();
 
     // Render
     let head = format!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -49,14 +57,17 @@ fn main() {
     for j in (0..IMAGE_HEIGHT).rev() {
         eprint!("\rScanlines remaining: {} ", j);
         for i in 0..IMAGE_WIDTH {
-            let u = i as f64 / width_minus_one as f64;
-            let v = j as f64 / height_minus_one as f64;
-            let direction = lower_left_corner
-                + horizontal.multiply_coef(u) + vertical.multiply_coef(v) - origin;
-            let ray = Ray::new(origin, direction);
-            let pixel_color = ray_color(&ray, &world);
+            let mut pixel_color = Color3::new(0.0, 0.0, 0.0);
 
-            color::write_color(pixel_color);
+            for _ in 0..SAMPLES_PER_PIXEL {
+                let u = (i as f64 + rtweekend::random()) / width_minus_one as f64;
+                let v = (j as f64 + rtweekend::random()) / height_minus_one as f64;
+
+                let ray = camera.get_ray(u, v);
+                pixel_color += ray_color(&ray, &world, MAX_DEPTH);
+            }
+
+            color::write_color(pixel_color, SAMPLES_PER_PIXEL);
         }
     }
 

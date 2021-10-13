@@ -4,6 +4,8 @@ pub mod ray;
 pub mod hittable;
 pub mod sphere;
 pub mod hittable_list;
+pub mod rtweekend;
+pub mod camera;
 
-pub use vec3::Vec3 as Point3;
-pub use vec3::Vec3 as Color3;
+pub type Point3 = vec3::Vec3;
+pub type Color3 = vec3::Vec3;

@@ -24,14 +24,20 @@ impl HittableList {
     pub fn is_hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut hit_record = HitRecord::new();
         let mut closest_so_far = t_max;
+        let mut hit_anything = false;
 
         for hittable_obj in &self.hittables_vec {
             if let Some(hit_rec) = hittable_obj.hit(ray, t_min, closest_so_far) {
+                hit_anything = true;
                 closest_so_far = hit_rec.t;
                 hit_record = hit_rec;
             }
         }
 
-        Some(hit_record)
+        if hit_anything {
+            Some(hit_record)
+        } else {
+            None
+        }
     }
 }

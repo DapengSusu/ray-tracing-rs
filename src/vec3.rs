@@ -1,4 +1,5 @@
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, AddAssign, Sub, Mul, Div};
+use crate::rtweekend;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
@@ -61,6 +62,36 @@ impl Vec3 {
     pub fn unit_vector(v3: Vec3) -> Self {
         v3.multiply_coef(1.0 / v3.length())
     }
+
+    pub fn random_vec3_in_range(min: f64, max: f64) -> Self {
+        Vec3::new(
+            rtweekend::random_in_range(min, max),
+            rtweekend::random_in_range(min, max),
+            rtweekend::random_in_range(min, max),
+        )
+    }
+
+    pub fn random_vec3() -> Self {
+        Vec3::new(
+            rtweekend::random(),
+            rtweekend::random(),
+            rtweekend::random(),
+        )
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Vec3::random_vec3_in_range(-1.0, 1.0);
+
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
+    pub fn random_unit_vector() -> Self {
+        Self::unit_vector(Self::random_in_unit_sphere())
+    }
 }
 
 impl Add for Vec3 {
@@ -72,6 +103,16 @@ impl Add for Vec3 {
             y: self.y + rhs.y,
             z: self.z + rhs.z,
         }
+    }
+}
+
+impl AddAssign for Vec3 {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        };
     }
 }
 
