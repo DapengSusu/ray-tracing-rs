@@ -92,6 +92,17 @@ impl Vec3 {
     pub fn random_unit_vector() -> Self {
         Self::unit_vector(Self::random_in_unit_sphere())
     }
+
+    pub fn near_zero(&self) -> bool {
+        // Return true if the vector is close to zero in all dimensions.
+        let s = 1E-8;
+
+        (self.x.abs() < s) && (self.y.abs() < s) && (self.z.abs() < s)
+    }
+
+    pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+        *v - (*n).multiply_coef(2.0 * Self::dot(v, n))
+    }
 }
 
 impl Add for Vec3 {

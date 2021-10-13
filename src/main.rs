@@ -1,8 +1,8 @@
 use create_image::camera::Camera;
 use create_image::hittable_list::HittableList;
+use create_image::material::{Lambertian, Metal};
 use create_image::rtweekend;
 use create_image::sphere::Sphere;
-use create_image::vec3::Vec3;
 use create_image::{Color3, Point3};
 use create_image::{color, ray::Ray};
 
@@ -14,13 +14,11 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color3 {
     }
 
     if let Some(hit_rec) = world.is_hit(ray, 0.001, f64::INFINITY) {
-        let target = hit_rec.p + hit_rec.normal + Vec3::random_unit_vector();
-
-        return ray_color(
-            &Ray::new(hit_rec.p, target - hit_rec.p),
-            world,
-            depth - 1
-        ).multiply_coef(0.5);
+        if let Some((attenuation, scattered)) = hit_rec.material.scatter(ray, &hit_rec) {
+            return attenuation * ray_color(&scattered, world, depth-1);
+        } else {
+            return Color3::new(0.0, 0.0, 0.0);
+        }
     }
 
     let unit_direction = Color3::unit_vector(*ray.direction());
@@ -41,8 +39,34 @@ fn main() {
     // World
     let mut world = HittableList::new();
 
-    world.add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
-    world.add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+    let material_ground = Lambertian::new(Color3::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color3::new(0.7, 0.3, 0.3));
+    let material_left = Metal::new(Color3::new(0.8, 0.8, 0.8), 0.3);
+    let material_right = Metal::new(Color3::new(0.8, 0.6, 0.2), 1.0);
+
+    world.add(Box::new(Sphere::new(
+        Point3::new(0.0, -100.5, -1.0),
+        100.0,
+        Box::new(material_ground)
+    )));
+
+    world.add(Box::new(Sphere::new(
+        Point3::new(0.0, 0.0, -1.0),
+        0.5,
+        Box::new(material_center)
+    )));
+
+    world.add(Box::new(Sphere::new(
+        Point3::new(-1.0, 0.0, -1.0),
+        0.5,
+        Box::new(material_left)
+    )));
+
+    world.add(Box::new(Sphere::new(
+        Point3::new(1.0, 0.0, -1.0),
+        0.5,
+        Box::new(material_right)
+    )));
 
     // Camera
     let camera = Camera::new();
