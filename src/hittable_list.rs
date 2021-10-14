@@ -1,4 +1,4 @@
-use crate::{hittable::{Hit, HitRecord}, ray::Ray};
+use crate::{Color3, Point3, hittable::{Hit, HitRecord}, material::{Dielectric, Lambertian, Metal}, ray::Ray, rtweekend, sphere::Sphere};
 
 pub struct HittableList {
     pub hittables_vec: Vec<Box<dyn Hit>>
@@ -39,5 +39,85 @@ impl HittableList {
         } else {
             None
         }
+    }
+
+    pub fn random_scene() -> Self {
+        let mut world = Self::new();
+        let ground_material = Lambertian::new(Color3::new(0.5, 0.5, 0.5));
+
+        world.add(Box::new(Sphere::new(
+            Point3::new(0.0, -1000.0, 0.0),
+            1000.0,
+            Box::new(ground_material)
+        )));
+
+        for a in -11..11 {
+            for b in -11..11 {
+                let choose_material = rtweekend::random();
+                let center = Point3::new(
+                    a as f64 + 0.9 * rtweekend::random(),
+                    0.2,
+                    b as f64 + 0.9 * rtweekend::random()
+                );
+
+                if (center - Point3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                    if choose_material < 0.8 {
+                        // diffuse
+                        let albedo = Color3::random_vec3() * Color3::random_vec3();
+                        let sphere_material = Lambertian::new(albedo);
+
+                        world.add(Box::new(Sphere::new(
+                            center,
+                            0.2,
+                            Box::new(sphere_material)
+                        )));
+                    } else if choose_material < 0.95 {
+                        // metal
+                        let albedo = Color3::random_vec3_in_range(0.5, 1.0);
+                        let fuzz = rtweekend::random_in_range(0.0, 0.5);
+                        let sphere_material = Metal::new(albedo, fuzz);
+
+                        world.add(Box::new(Sphere::new(
+                            center,
+                            0.2,
+                            Box::new(sphere_material)
+                        )));
+                    } else {
+                        // glass
+                        let sphere_material = Dielectric::new(1.5);
+
+                        world.add(Box::new(Sphere::new(
+                            center,
+                            0.2,
+                            Box::new(sphere_material)
+                        )));
+                    }
+                }
+            }
+        }
+
+        let material1 = Dielectric::new(1.5);
+        let material2 = Lambertian::new(Color3::new(0.4, 0.2, 0.1));
+        let material3 = Metal::new(Color3::new(0.7, 0.6, 0.5), 0.0);
+
+        world.add(Box::new(Sphere::new(
+            Point3::new(0.0, 1.0, 0.0),
+            1.0,
+            Box::new(material1)
+        )));
+
+        world.add(Box::new(Sphere::new(
+            Point3::new(-4.0, 1.0, 0.0),
+            1.0,
+            Box::new(material2)
+        )));
+
+        world.add(Box::new(Sphere::new(
+            Point3::new(4.0, 1.0, 0.0),
+            1.0,
+            Box::new(material3)
+        )));
+
+        world
     }
 }
