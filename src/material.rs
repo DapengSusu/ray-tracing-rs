@@ -62,7 +62,8 @@ impl Material for Metal {
         let reflected = Vec3::reflect(&Vec3::unit_vector(*ray_in.direction()), &hit_record.normal);
         let scattered = Ray::new(
             hit_record.p, 
-            reflected + Vec3::random_in_unit_sphere().multiply_coef(self.fuzz)
+            // reflected + Vec3::random_in_unit_sphere().multiply_coef(self.fuzz)
+            reflected + Vec3::random_in_unit_sphere() * self.fuzz
         );
         let attenuation = self.albedo;
 
@@ -106,7 +107,8 @@ impl Material for Dielectric {
         };
 
         let unit_direction = Vec3::unit_vector(*ray_in.direction());
-        let cos_theta = Vec3::dot(&unit_direction.multiply_coef(-1.0), &hit_record.normal).min(1.0);
+        // let cos_theta = Vec3::dot(&unit_direction.multiply_coef(-1.0), &hit_record.normal).min(1.0);
+        let cos_theta = Vec3::dot(&(-unit_direction), &hit_record.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta*cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.0;

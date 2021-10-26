@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Sub, Mul, Div};
+use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub};
 use crate::rtweekend;
 
 #[derive(Debug, Clone, Copy)]
@@ -34,14 +34,14 @@ impl Vec3 {
         self.length_squared().sqrt()
     }
 
-    pub fn multiply_coef(&self, coef: f64) -> Self {
-        // coef * (x+y+z)
-        Self {
-            x: self.x * coef,
-            y: self.y * coef,
-            z: self.z * coef,
-        }
-    }
+    // pub fn multiply_coef(&self, coef: f64) -> Self {
+    //     // coef * (x+y+z)
+    //     Self {
+    //         x: self.x * coef,
+    //         y: self.y * coef,
+    //         z: self.z * coef,
+    //     }
+    // }
 
     pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
         // x1*x2 + y1*y2 + z1*z2
@@ -60,7 +60,8 @@ impl Vec3 {
     }
 
     pub fn unit_vector(v3: Vec3) -> Self {
-        v3.multiply_coef(1.0 / v3.length())
+        // v3.multiply_coef(1.0 / v3.length())
+        v3 / v3.length()
     }
 
     pub fn random_vec3_in_range(min: f64, max: f64) -> Self {
@@ -115,13 +116,17 @@ impl Vec3 {
     }
 
     pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
-        *v - (*n).multiply_coef(2.0 * Self::dot(v, n))
+        // *v - (*n).multiply_coef(2.0 * Self::dot(v, n))
+        *v - *n * Self::dot(v, n) * 2.0
     }
 
     pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
-        let cos_theta = Self::dot(&uv.multiply_coef(-1.0), n).min(1.0);
-        let r_out_perp = (*uv + n.multiply_coef(cos_theta)).multiply_coef(etai_over_etat);
-        let r_out_parallel = n.multiply_coef(-((1.0 - r_out_perp.length_squared()).abs()).sqrt());
+        // let cos_theta = Self::dot(&uv.multiply_coef(-1.0), n).min(1.0);
+        // let r_out_perp = (*uv + n.multiply_coef(cos_theta)).multiply_coef(etai_over_etat);
+        // let r_out_parallel = n.multiply_coef(-((1.0 - r_out_perp.length_squared()).abs()).sqrt());
+        let cos_theta = Self::dot(&(*uv * (-1.0)), n).min(1.0);
+        let r_out_perp = (*uv + *n * cos_theta) * etai_over_etat;
+        let r_out_parallel = *n * -((1.0 - r_out_perp.length_squared()).abs()).sqrt();
 
         r_out_perp + r_out_parallel
     }
@@ -173,6 +178,18 @@ impl Mul for Vec3 {
     }
 }
 
+impl Mul<f64> for Vec3 {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
 impl Div for Vec3 {
     type Output = Self;
 
@@ -181,6 +198,30 @@ impl Div for Vec3 {
             x: self.x / rhs.x,
             y: self.y / rhs.y,
             z: self.z / rhs.z,
+        }
+    }
+}
+
+impl Div<f64> for Vec3 {
+    type Output = Self;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
         }
     }
 }

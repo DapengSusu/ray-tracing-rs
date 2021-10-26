@@ -31,7 +31,8 @@ impl HitRecord {
         self.normal = if self.front_face {
             *outward_normal
         } else {
-            (*outward_normal).multiply_coef(-1.0)
+            // (*outward_normal).multiply_coef(-1.0)
+            -(*outward_normal)
         }
     }
 }

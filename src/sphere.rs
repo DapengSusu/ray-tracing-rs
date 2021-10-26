@@ -43,7 +43,8 @@ impl Hit for Sphere {
 
             hit_record.t = root;
             hit_record.p = ray.at(hit_record.t);
-            let outward_normal = (hit_record.p - self.center).multiply_coef(1.0/self.radius);
+            // let outward_normal = (hit_record.p - self.center).multiply_coef(1.0/self.radius);
+            let outward_normal = (hit_record.p - self.center) / self.radius;
             hit_record.set_face_normal(ray, &outward_normal);
             hit_record.material = dyn_clone::clone_box(&*self.material);
 

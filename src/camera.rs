@@ -33,10 +33,13 @@ impl Camera {
         let v = Vec3::cross(&w, &u);
 
         let origin = lookfrom;
-        let horizontal = u.multiply_coef(viewport_width * focus_dist);
-        let vertical = v.multiply_coef(viewport_height * focus_dist);
-        let lower_left_corner = origin - horizontal.multiply_coef(1.0/2.0)
-            - vertical.multiply_coef(1.0/2.0) - w.multiply_coef(focus_dist);
+        // let horizontal = u.multiply_coef(viewport_width * focus_dist);
+        // let vertical = v.multiply_coef(viewport_height * focus_dist);
+        // let lower_left_corner = origin - horizontal.multiply_coef(1.0/2.0)
+        //     - vertical.multiply_coef(1.0/2.0) - w.multiply_coef(focus_dist);
+        let horizontal = u * viewport_width * focus_dist;
+        let vertical = v * viewport_height * focus_dist;
+        let lower_left_corner = origin - horizontal*0.5 - vertical*0.5 - w*focus_dist;
         let lens_radius = aperture / 2.0;
 
         Self {
@@ -52,12 +55,15 @@ impl Camera {
     }
 
     pub fn get_ray(&self, s: f64, t: f64) -> Ray {
-        let rd = Vec3::random_in_unit_disk().multiply_coef(self.lens_radius);
-        let offset = self.u.multiply_coef(rd.x()) + self.v.multiply_coef(rd.y());
+        // let rd = Vec3::random_in_unit_disk().multiply_coef(self.lens_radius);
+        // let offset = self.u.multiply_coef(rd.x()) + self.v.multiply_coef(rd.y());
+        let rd = Vec3::random_in_unit_disk() * self.lens_radius;
+        let offset = self.u * rd.x() + self.v * rd.y();
         Ray::new(
             self.origin + offset,
-            self.lower_left_corner + self.horizontal.multiply_coef(s)
-                + self.vertical.multiply_coef(t) - self.origin - offset
+            // self.lower_left_corner + self.horizontal.multiply_coef(s)
+            //     + self.vertical.multiply_coef(t) - self.origin - offset
+            self.lower_left_corner + self.horizontal*s + self.vertical*t - self.origin - offset
         )
     }
 }
