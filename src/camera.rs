@@ -59,6 +59,7 @@ impl Camera {
         // let offset = self.u.multiply_coef(rd.x()) + self.v.multiply_coef(rd.y());
         let rd = Vec3::random_in_unit_disk() * self.lens_radius;
         let offset = self.u * rd.x() + self.v * rd.y();
+
         Ray::new(
             self.origin + offset,
             // self.lower_left_corner + self.horizontal.multiply_coef(s)

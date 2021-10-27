@@ -19,11 +19,11 @@ impl Lambertian {
     }
 }
 
-impl Clone for Lambertian {
-    fn clone(&self) -> Self {
-        Self { albedo: self.albedo }
-    }
-}
+// impl Clone for Lambertian {
+//     fn clone(&self) -> Self {
+//         Self { albedo: self.albedo }
+//     }
+// }
 
 impl Material for Lambertian {
     fn scatter(&self, _ray_in: &Ray, hit_record: &HitRecord) -> Option<(Color3, Ray)> {
@@ -52,14 +52,14 @@ impl Metal {
     }
 }
 
-impl Clone for Metal {
-    fn clone(&self) -> Self {
-        Self {
-            albedo: self.albedo,
-            fuzz: self.fuzz,
-        }
-    }
-}
+// impl Clone for Metal {
+//     fn clone(&self) -> Self {
+//         Self {
+//             albedo: self.albedo,
+//             fuzz: self.fuzz,
+//         }
+//     }
+// }
 
 impl Material for Metal {
     fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord) -> Option<(Color3, Ray)> {
@@ -96,11 +96,11 @@ impl Dielectric {
     }
 }
 
-impl Clone for Dielectric {
-    fn clone(&self) -> Self {
-        Self { ir: self.ir }
-    }
-}
+// impl Clone for Dielectric {
+//     fn clone(&self) -> Self {
+//         Self { ir: self.ir }
+//     }
+// }
 
 impl Material for Dielectric {
     fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord) -> Option<(Color3, Ray)> {
@@ -114,7 +114,6 @@ impl Material for Dielectric {
         // let cos_theta = Vec3::dot(&unit_direction.multiply_coef(-1.0), &hit_record.normal).min(1.0);
         let cos_theta = Vec3::dot(&(-unit_direction), &hit_record.normal).min(1.0);
         let sin_theta = (1.0 - cos_theta*cos_theta).sqrt();
-
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
 
         let direction = if cannot_refract ||

@@ -1,9 +1,13 @@
-use create_image::camera::Camera;
-use create_image::hittable_list::HittableList;
-use create_image::rtweekend;
-use create_image::vec3::Vec3;
-use create_image::{Color3, Point3};
-use create_image::{color, ray::Ray};
+use create_image::{
+    Color3,
+    Point3,
+    vec3::Vec3,
+    hittable_list::HittableList,
+    ray::Ray,
+    camera::Camera,
+    rtweekend,
+    color
+};
 // use std::f64::consts::FRAC_PI_4;
 
 
@@ -14,7 +18,9 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color3 {
     }
 
     if let Some(hit_rec) = world.is_hit(ray, 0.001, f64::INFINITY) {
-        if let Some((attenuation, scattered)) = hit_rec.material.scatter(ray, &hit_rec) {
+        if let Some((attenuation, scattered)) =
+            hit_rec.material.scatter(ray, &hit_rec)
+        {
             return attenuation * ray_color(&scattered, world, depth-1);
         } else {
             return Color3::new(0.0, 0.0, 0.0);
@@ -65,14 +71,15 @@ fn main() {
 
     for j in (0..IMAGE_HEIGHT).rev() {
         eprint!("\rScanlines remaining: {} ", j);
+
         for i in 0..IMAGE_WIDTH {
             let mut pixel_color = Color3::new(0.0, 0.0, 0.0);
 
             for _ in 0..SAMPLES_PER_PIXEL {
                 let u = (i as f64 + rtweekend::random()) / width_minus_one as f64;
                 let v = (j as f64 + rtweekend::random()) / height_minus_one as f64;
-
                 let ray = camera.get_ray(u, v);
+
                 pixel_color += ray_color(&ray, &world, MAX_DEPTH);
             }
 

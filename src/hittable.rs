@@ -1,9 +1,12 @@
 use std::rc::Rc;
 
-use crate::Color3;
-use crate::material::{Lambertian, Material};
-use crate::{Point3, vec3::Vec3};
-use crate::ray::Ray;
+use crate::{
+    Point3,
+    vec3::Vec3,
+    material::{Lambertian, Material},
+    Color3,
+    ray::Ray
+};
 
 pub trait Hit {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;

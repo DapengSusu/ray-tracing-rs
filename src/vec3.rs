@@ -206,6 +206,7 @@ impl Div<f64> for Vec3 {
     type Output = Self;
 
     fn div(self, rhs: f64) -> Self::Output {
+        // self * (1.0/rhs)
         Self {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -218,6 +219,7 @@ impl Neg for Vec3 {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
+        // self * (-1.0)
         Self {
             x: -self.x,
             y: -self.y,
