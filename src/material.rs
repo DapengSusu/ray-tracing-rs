@@ -1,7 +1,11 @@
 use crate::{Color3, hittable::HitRecord, ray::Ray, rtweekend, vec3::Vec3};
-use dyn_clone::DynClone;
+// use dyn_clone::DynClone;
 
-pub trait Material: DynClone {
+// pub trait Material: DynClone {
+//     fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord) -> Option<(Color3, Ray)>;
+// }
+
+pub trait Material {
     fn scatter(&self, ray_in: &Ray, hit_record: &HitRecord) -> Option<(Color3, Ray)>;
 }
 

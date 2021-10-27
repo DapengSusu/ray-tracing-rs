@@ -1,7 +1,17 @@
-use crate::{Color3, Point3, hittable::{Hit, HitRecord}, material::{Dielectric, Lambertian, Metal}, ray::Ray, rtweekend, sphere::Sphere};
+use std::rc::Rc;
+
+use crate::{
+    Color3,
+    Point3,
+    hittable::{Hit, HitRecord},
+    material::{Dielectric, Lambertian, Metal},
+    ray::Ray,
+    rtweekend,
+    sphere::Sphere
+};
 
 pub struct HittableList {
-    pub hittables_vec: Vec<Box<dyn Hit>>
+    pub hittables_vec: Vec<Rc<dyn Hit>>
 }
 
 impl HittableList {
@@ -9,11 +19,11 @@ impl HittableList {
         Self { hittables_vec: Vec::new() }
     }
 
-    pub fn add(&mut self, item: Box<dyn Hit>) {
+    pub fn add(&mut self, item: Rc<dyn Hit>) {
         self.hittables_vec.push(item);
     }
 
-    pub fn del(&mut self) -> Option<Box<dyn Hit>> {
+    pub fn del(&mut self) -> Option<Rc<dyn Hit>> {
         if let Some(item) = self.hittables_vec.pop() {
             Some(item)
         } else {
@@ -45,10 +55,10 @@ impl HittableList {
         let mut world = Self::new();
         let ground_material = Lambertian::new(Color3::new(0.5, 0.5, 0.5));
 
-        world.add(Box::new(Sphere::new(
+        world.add(Rc::new(Sphere::new(
             Point3::new(0.0, -1000.0, 0.0),
             1000.0,
-            Box::new(ground_material)
+            Rc::new(ground_material)
         )));
 
         for a in -11..11 {
@@ -66,10 +76,10 @@ impl HittableList {
                         let albedo = Color3::random_vec3() * Color3::random_vec3();
                         let sphere_material = Lambertian::new(albedo);
 
-                        world.add(Box::new(Sphere::new(
+                        world.add(Rc::new(Sphere::new(
                             center,
                             0.2,
-                            Box::new(sphere_material)
+                            Rc::new(sphere_material)
                         )));
                     } else if choose_material < 0.95 {
                         // metal
@@ -77,19 +87,19 @@ impl HittableList {
                         let fuzz = rtweekend::random_in_range(0.0, 0.5);
                         let sphere_material = Metal::new(albedo, fuzz);
 
-                        world.add(Box::new(Sphere::new(
+                        world.add(Rc::new(Sphere::new(
                             center,
                             0.2,
-                            Box::new(sphere_material)
+                            Rc::new(sphere_material)
                         )));
                     } else {
                         // glass
                         let sphere_material = Dielectric::new(1.5);
 
-                        world.add(Box::new(Sphere::new(
+                        world.add(Rc::new(Sphere::new(
                             center,
                             0.2,
-                            Box::new(sphere_material)
+                            Rc::new(sphere_material)
                         )));
                     }
                 }
@@ -100,22 +110,22 @@ impl HittableList {
         let material2 = Lambertian::new(Color3::new(0.4, 0.2, 0.1));
         let material3 = Metal::new(Color3::new(0.7, 0.6, 0.5), 0.0);
 
-        world.add(Box::new(Sphere::new(
+        world.add(Rc::new(Sphere::new(
             Point3::new(0.0, 1.0, 0.0),
             1.0,
-            Box::new(material1)
+            Rc::new(material1)
         )));
 
-        world.add(Box::new(Sphere::new(
+        world.add(Rc::new(Sphere::new(
             Point3::new(-4.0, 1.0, 0.0),
             1.0,
-            Box::new(material2)
+            Rc::new(material2)
         )));
 
-        world.add(Box::new(Sphere::new(
+        world.add(Rc::new(Sphere::new(
             Point3::new(4.0, 1.0, 0.0),
             1.0,
-            Box::new(material3)
+            Rc::new(material3)
         )));
 
         world
